@@ -15,7 +15,7 @@ class zmp_walker:
         sys.path.append(sys.path[0] + '/param.txt')
         param_path=sys.path[-1]		
         param=np.genfromtxt(fname=param_path,dtype=float,delimiter=",",comments="#",max_rows=38,invalid_raise=False)
-        Params = {              
+        self.Params = {              
             'foot_width' : param[0],
             'ex_foot_width' : param[1],
             'foot_height' :param[2],

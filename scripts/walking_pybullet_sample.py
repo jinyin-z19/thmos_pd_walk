@@ -71,13 +71,13 @@ if __name__ == '__main__':
     if j >= 10:
       if n == 0:
         if nk < 8:
-          walk.setGoalVel([ 0.1, 0, 0])
+          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.3])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([ 0, 0, 0])
+          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.3])
           nk = nk + 1
         else:
-          walk.setGoalVel([ 0, 0, 0])
+          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.3])
           nk = 0
       joint_angles,n = walk.getNextPos()
       j = 0

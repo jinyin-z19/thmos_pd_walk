@@ -5,9 +5,9 @@
 #foot_height' : 
 0.04
 #'com_height' : 
-0.8
+0.29
 #'com_x_offset' : 
--0.2
+-0
 #'com_y_offset' : 
 0.0
 #'trunk_height' : 
@@ -19,16 +19,12 @@
 #'dt' : 
 0.01
 #'max_vx' : 
-0.000000001
+0.5
 #'max_vy': 
 0.5
 #'max_vth' : 
 0.5
 #'k_x_offset':
 0
-#'b_x_offset':
--0.05
 #'k_y_offset':
-0
-#'b_y_offset':
 0

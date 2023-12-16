@@ -4,7 +4,7 @@ import pybullet_data
 import numpy as np
 import sys
 sys.path.append('./walking_packet')
-from thmos_walk_engine import *
+from thmos_walk_engine_py import *
 from random import random 
 from time import sleep
 import time
@@ -52,9 +52,7 @@ if __name__ == '__main__':
             'max_vy': param[11],
             'max_vth' : param[12],
             'k_x_offset':param[13],#ex_com_x_offset k
-            'b_x_offset':param[14],#ex_com_x_offset b
-            'k_y_offset':param[15],#ex_com_y_offset k
-            'b_y_offset':param[16],#ex_com_y_offset b
+            'k_y_offset':param[14],#ex_com_y_offset k
             'way_left' : [1,-1,-1,-1,-1,-1],
             'way_right' : [1,1,-1,1,1,-1],
             'leg_rod_length' : [0.156,0.12,0.045]
@@ -71,13 +69,13 @@ if __name__ == '__main__':
     if j >= 10:
       if n == 0:
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.3])
+          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0 + 0.2])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.3])
+          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0 - 0.4 * 0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.3])
+          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0 + 0.4 * 0])
           nk = 0
       joint_angles,n = walk.getNextPos()
       j = 0

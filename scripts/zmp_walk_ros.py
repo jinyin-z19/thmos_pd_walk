@@ -30,9 +30,7 @@ class zmp_walker:
             'max_vy': param[11],
             'max_vth' : param[12],
             'k_x_offset':param[13],#ex_com_x_offset k
-            'b_x_offset':param[14],#ex_com_x_offset b
             'k_y_offset':param[15],#ex_com_y_offset k
-            'b_y_offset':param[16],#ex_com_y_offset b
             'way_left' : [1,-1,-1,-1,-1,-1],
             'way_right' : [1,1,-1,1,1,-1],
             'leg_rod_length' : [0.156,0.12,0.045]
@@ -58,8 +56,8 @@ class zmp_walker:
 
     def walk_goal_callback(self, walk_goal_msg):
         self.next_walk_goal = [walk_goal_msg.linear.x, walk_goal_msg.linear.y, walk_goal_msg.angular.z]
-        self.walk_gen.com_y_offset=self.Params['k_y_offset']*self.next_walk_goal[1]+self.Params['b_y_offset']
-        self.walk_gen.com_x_offset=self.Params['k_x_offset']*self.next_walk_goal[1]+self.Params['b_x_offset']
+        self.walk_gen.com_y_offset=self.Params['k_y_offset']*self.next_walk_goal[1]+self.Params['com_y_offset']
+        self.walk_gen.com_x_offset=self.Params['k_x_offset']*self.next_walk_goal[1]+self.Params['com_x_offset']
         
     def pub_joint_goal(self):
         self.joint_goal_msg.position = self.joint_angles_raw

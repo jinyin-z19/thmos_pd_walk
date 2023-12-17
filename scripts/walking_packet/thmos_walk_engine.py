@@ -15,7 +15,8 @@
 
 import math
 import numpy as np
-from thmos_kinematics import *
+# from thmos_kinematics import *
+from thmos_kinematics_py import *
 from thmos_step_planner import *
 from thmos_preview_control import *
 from thmos_spline import *
@@ -149,8 +150,8 @@ class walking():
     lo = self.left_off  - np.block([[x[0,0],y[0,0],0]])
     ro = self.right_off - np.block([[x[0,0],y[0,0],0]])
     
-    left_foot  = [lo[0,0] + self.com_x_offset, lo[0,1] + self.com_y_offset + self.ex_foot_width, self.left_up -  self.trunk_height, 0.0, 0.0, self.th-lo[0,2]]
-    right_foot = [ro[0,0] + self.com_x_offset, ro[0,1] + self.com_y_offset - self.ex_foot_width, self.right_up - self.trunk_height, 0.0, 0.0, self.th-ro[0,2]]
+    left_foot  = [lo[0,0] * 0 + self.com_x_offset * 0, lo[0,1] + self.com_y_offset + self.ex_foot_width, self.left_up -  self.trunk_height, 0.0, 0.0, self.th-lo[0,2]]
+    right_foot = [ro[0,0] * 0 + self.com_x_offset * 0, ro[0,1] + self.com_y_offset - self.ex_foot_width, self.right_up - self.trunk_height, 0.0, 0.0, self.th-ro[0,2]]
 
     l_joint_angles = self.kinematic.LegIKMove('left',left_foot)
     r_joint_angles = self.kinematic.LegIKMove('right',right_foot)

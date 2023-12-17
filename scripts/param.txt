@@ -5,9 +5,9 @@
 #foot_height' : 
 0.04
 #'com_height' : 
-0.29
+0.25
 #'com_x_offset' : 
--0
+0
 #'com_y_offset' : 
 0.0
 #'trunk_height' : 

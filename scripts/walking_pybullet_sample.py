@@ -4,7 +4,7 @@ import pybullet_data
 import numpy as np
 import sys
 sys.path.append('./walking_packet')
-from thmos_walk_engine_py import *
+from thmos_walk_engine import *
 from random import random 
 from time import sleep
 import time
@@ -17,12 +17,14 @@ if __name__ == '__main__':
   p.setTimeStep(TIME_STEP)
 
   planeId = p.loadURDF("plane.urdf", [0, 0, 0])
-  RobotId = p.loadURDF("../urdf/urdf/thmos_mix.urdf", [0, 0, 0.43],useFixedBase = False)  #0.43
-
+  RobotId = p.loadURDF("../urdf/urdf/thmos_mix.urdf", [0, 0, 0.43],useFixedBase = True)  #0.43
+	
 
   index = {p.getBodyInfo(RobotId)[0].decode('UTF-8'):-1,}
   for id in range(p.getNumJoints(RobotId)):
     index[p.getJointInfo(RobotId, id)[12].decode('UTF-8')] = id
+    link_name = p.getJointInfo(RobotId, id)[12].decode('UTF-8')
+    print([id,link_name])
 
   joint_angles = []
   for id in range(p.getNumJoints(RobotId)):
@@ -33,6 +35,9 @@ if __name__ == '__main__':
   for id in range(p.getNumJoints(RobotId)):
     index_dof[p.getJointInfo(RobotId, id)[12].decode('UTF-8')] = p.getJointInfo(RobotId, id)[3] - 7
 
+  p.changeDynamics(planeId, -1, lateralFriction=10000000)
+  p.changeDynamics(RobotId, index['r_sole'], lateralFriction=1000000)
+  p.changeDynamics(RobotId, index['l_sole'], lateralFriction=1000000)
   # control box ----
   sys.path.append(sys.path[0] + '/param.txt')
   param_path=sys.path[-1]		
@@ -63,19 +68,35 @@ if __name__ == '__main__':
   n = 0
   k = 0 
   nk = 0
-  
+  rold = p.getLinkState(RobotId, index['r_sole'])[0]
+  rsold = p.getLinkState(RobotId, index['r_sole'])[0]
+  lold = p.getLinkState(RobotId, index['l_sole'])[0]
+  lsold = p.getLinkState(RobotId, index['l_sole'])[0]
   while p.isConnected():
     j += 1
     if j >= 10:
+      r_sole_pos = p.getLinkState(RobotId, index['r_sole'])[0]
+      l_sole_pos = p.getLinkState(RobotId, index['l_sole'])[0]
+      #print(np.array(r_sole_pos)  - np.array(l_sole_pos))
+      p.addUserDebugLine( lold, l_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
+      p.addUserDebugLine( rold, r_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
+      rold = p.getLinkState(RobotId, index['r_sole'])[0]
+      lold = p.getLinkState(RobotId, index['l_sole'])[0] 
+   
       if n == 0:
+        #print(np.linalg.norm(np.array(rold)  - np.array(lold) - (np.array(rsold) - np.array(lsold)) * 0))
+        print(np.array(rold)  - np.array(lold))
+        #print(p.getEulerFromQuaternion(p.getLinkState(RobotId, 24)[1])) 
+        lsold = p.getLinkState(RobotId, 24)[0]
+        rsold = p.getLinkState(RobotId, 17)[0]
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0 + 0.2])
+          walk.setGoalVel([(random()-0.5)*0.0 + 0.001, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0 - 0.4 * 0])
+          walk.setGoalVel([(random()-0.5)*0.0 + 0.001, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0 + 0.4 * 0])
+          walk.setGoalVel([(random()-0.5)*0.0 + 0.001, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0])
           nk = 0
       joint_angles,n = walk.getNextPos()
       j = 0

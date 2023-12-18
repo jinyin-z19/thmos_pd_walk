@@ -17,7 +17,7 @@ if __name__ == '__main__':
   p.setTimeStep(TIME_STEP)
 
   planeId = p.loadURDF("plane.urdf", [0, 0, 0])
-  RobotId = p.loadURDF("../urdf/urdf/thmos_mix.urdf", [0, 0, 0.43],useFixedBase = True)  #0.43
+  RobotId = p.loadURDF("../urdf/urdf/thmos_mix.urdf", [0, 0, 0.43],useFixedBase = False)  #0.43
 	
 
   index = {p.getBodyInfo(RobotId)[0].decode('UTF-8'):-1,}
@@ -58,6 +58,7 @@ if __name__ == '__main__':
             'max_vth' : param[12],
             'k_x_offset':param[13],#ex_com_x_offset k
             'k_y_offset':param[14],#ex_com_y_offset k
+            'trunk_pitch':param[15],
             'way_left' : [1,-1,-1,-1,-1,-1],
             'way_right' : [1,1,-1,1,1,-1],
             'leg_rod_length' : [0.156,0.12,0.045]
@@ -68,35 +69,35 @@ if __name__ == '__main__':
   n = 0
   k = 0 
   nk = 0
-  rold = p.getLinkState(RobotId, index['r_sole'])[0]
-  rsold = p.getLinkState(RobotId, index['r_sole'])[0]
-  lold = p.getLinkState(RobotId, index['l_sole'])[0]
-  lsold = p.getLinkState(RobotId, index['l_sole'])[0]
+  #rold = p.getLinkState(RobotId, index['r_sole'])[0]
+  #rsold = p.getLinkState(RobotId, index['r_sole'])[0]
+  #lold = p.getLinkState(RobotId, index['l_sole'])[0]
+  #lsold = p.getLinkState(RobotId, index['l_sole'])[0]
   while p.isConnected():
     j += 1
     if j >= 10:
-      r_sole_pos = p.getLinkState(RobotId, index['r_sole'])[0]
-      l_sole_pos = p.getLinkState(RobotId, index['l_sole'])[0]
+      #r_sole_pos = p.getLinkState(RobotId, index['r_sole'])[0]
+      #l_sole_pos = p.getLinkState(RobotId, index['l_sole'])[0]
       #print(np.array(r_sole_pos)  - np.array(l_sole_pos))
-      p.addUserDebugLine( lold, l_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
-      p.addUserDebugLine( rold, r_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
-      rold = p.getLinkState(RobotId, index['r_sole'])[0]
-      lold = p.getLinkState(RobotId, index['l_sole'])[0] 
+      #p.addUserDebugLine( lold, l_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
+      #p.addUserDebugLine( rold, r_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
+      #rold = p.getLinkState(RobotId, index['r_sole'])[0]
+      #lold = p.getLinkState(RobotId, index['l_sole'])[0] 
    
       if n == 0:
         #print(np.linalg.norm(np.array(rold)  - np.array(lold) - (np.array(rsold) - np.array(lsold)) * 0))
-        print(np.array(rold)  - np.array(lold))
+        #print(np.array(rold)  - np.array(lold))
         #print(p.getEulerFromQuaternion(p.getLinkState(RobotId, 24)[1])) 
-        lsold = p.getLinkState(RobotId, 24)[0]
-        rsold = p.getLinkState(RobotId, 17)[0]
+        #lsold = p.getLinkState(RobotId, 24)[0]
+        #rsold = p.getLinkState(RobotId, 17)[0]
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.0 + 0.001, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0])
+          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.0 + 0.05, (random()-0.5)*0.0])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.0 + 0.001, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0])
+          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.0, (random()-0.5)*0.0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.0 + 0.001, (random()-0.5)*0.3*0, (random()-0.5)*0.3 * 0])
+          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.0, (random()-0.5)*0.0])
           nk = 0
       joint_angles,n = walk.getNextPos()
       j = 0

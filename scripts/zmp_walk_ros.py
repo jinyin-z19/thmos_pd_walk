@@ -30,7 +30,8 @@ class zmp_walker:
             'max_vy': param[11],
             'max_vth' : param[12],
             'k_x_offset':param[13],#ex_com_x_offset k
-            'k_y_offset':param[15],#ex_com_y_offset k
+            'k_y_offset':param[14],#ex_com_y_offset k
+            'trunk_pitch':param[15],
             'way_left' : [1,-1,-1,-1,-1,-1],
             'way_right' : [1,1,-1,1,1,-1],
             'leg_rod_length' : [0.156,0.12,0.045]

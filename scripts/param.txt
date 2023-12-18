@@ -1,11 +1,11 @@
 #'foot_width' : 
-0.1
+0.16
 #'ex_foot_width' : 
--0.04
+-0.06
 #foot_height' : 
 0.04
 #'com_height' : 
-0.22
+0.28
 #'com_x_offset' : 
 0
 #'com_y_offset' : 

@@ -65,6 +65,7 @@ class thmos_step_planner():
     # caculate com pos
     if  (walking_state == 'BOOT'):        
       goal_vx = 0
+      goal_vy = 0
     elif(walking_state == 'WALK'):
       pass
     elif(walking_state == 'STOP'):
@@ -75,11 +76,13 @@ class thmos_step_planner():
       print("walking state error!")
       
     new_x = now_pos_list[0] + goal_vx
-    if((old_support_leg == 'RIGHT' and goal_vy < 0) or (old_support_leg == 'LEFT' and goal_vy > 0)):
-      new_y  = now_pos_list[1]  + goal_vy
-    else:
-      new_y  = now_pos_list[1]
+    new_y  = now_pos_list[1] + goal_vy
     new_th = now_pos_list[2] + goal_th
+
+    # if((old_support_leg == 'RIGHT' and goal_vy < 0) or (old_support_leg == 'LEFT' and goal_vy > 0)):
+      # new_y  = now_pos_list[1]  + goal_vy
+    # else:
+      # new_y  = now_pos_list[1]
       
     # caculate foot pos
     new_l_x = now_pos_list[3]

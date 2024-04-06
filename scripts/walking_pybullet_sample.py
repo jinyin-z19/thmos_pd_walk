@@ -91,13 +91,13 @@ if __name__ == '__main__':
         #lsold = p.getLinkState(RobotId, 24)[0]
         #rsold = p.getLinkState(RobotId, 17)[0]
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.0 + 0.05, (random()-0.5)*0.0])
+          walk.setGoalVel([(random()-0.5)*0.1, (random()-0.5)*0.1, (random()-0.5)*0.1])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.0, (random()-0.5)*0.0])
+          walk.setGoalVel([(random()-0.5)*0.1, (random()-0.5)*0.1, (random()-0.5)*0.1])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.0, (random()-0.5)*0.0, (random()-0.5)*0.0])
+          walk.setGoalVel([(random()-0.5)*0.1, (random()-0.5)*0.1, (random()-0.5)*0.1])
           nk = 0
       joint_angles,n = walk.getNextPos()
       j = 0

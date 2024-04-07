@@ -25,7 +25,7 @@
 #'max_vth' : 
 0.5
 #'k_x_offset':
--0.05
+0
 #'k_y_offset':
 0
 #'trunk_pitch':

@@ -113,7 +113,7 @@ class walking():
     return 
       
       
-  def getNextPos(self):
+  def getNextPos(self,zmp_x,zmp_y,kx,ky):
     '''set each movement'''
     
     # get this pix move
@@ -153,10 +153,23 @@ class walking():
     # caculate foot pos in relative coordinates
     lo = self.left_off  - np.block([[self.body_x, self.body_y, self.body_th]])
     ro = self.right_off - np.block([[self.body_x, self.body_y, self.body_th]])
-
+    
     # add com offset
-    left_foot  = [lo[0,0] + self.com_x_offset + self.k_x_offset * self.now_vel[0], lo[0,1] + self.com_y_offset + self.ex_foot_width + self.k_y_offset * self.now_vel[1], self.left_up -  self.trunk_height, 0.0, 0.0, lo[0,2]]
-    right_foot = [ro[0,0] + self.com_x_offset + self.k_x_offset * self.now_vel[0], ro[0,1] + self.com_y_offset - self.ex_foot_width + self.k_y_offset * self.now_vel[1], self.right_up - self.trunk_height, 0.0, 0.0, ro[0,2]]
+    cx_off = self.com_x_offset + self.k_x_offset * self.now_vel[0]
+    cy_off = self.com_y_offset + self.k_y_offset * self.now_vel[1]
+    
+    # add zmp offset
+    if self.old_support_leg == 'RIGHT'  and self.now_frame > round(0.5 * self.period_frames):
+      cx_off = cx_off + kx * max( min( (zmp_x - (lo[0,0] + cx_off)), 0.05 ), -0.05)
+      cy_off = cy_off + ky * max( min( (zmp_y - (lo[0,1] + cy_off)), 0.05 ), -0.05)
+    elif self.old_support_leg == 'LEFT' and self.now_frame > round(0.5 * self.period_frames):
+      cx_off = cx_off + kx * max( min( (zmp_x - (ro[0,0] + cx_off)), 0.05 ), -0.05)
+      cy_off = cy_off + ky * max( min( (zmp_y - (ro[0,1] + cy_off)), 0.05 ), -0.05)
+      
+    # caculate foot pos with offset
+    left_foot  = [lo[0,0] + cx_off, lo[0,1] + self.ex_foot_width + cy_off, self.left_up -  self.trunk_height, 0.0, 0.0, lo[0,2]]
+    right_foot = [ro[0,0] + cx_off, ro[0,1] - self.ex_foot_width + cy_off, self.right_up - self.trunk_height, 0.0, 0.0, ro[0,2]]
+
 
     # ik caculate
     l_joint_angles = self.kinematic.LegIKMove('left',left_foot)

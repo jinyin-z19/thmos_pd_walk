@@ -82,23 +82,23 @@ if __name__ == '__main__':
     j += 1
     
     if j >= 100:
-      zmp_x_n = base_pos[0] + np.mean(zmp_x_s)
-      zmp_y_n = base_pos[1] + np.mean(zmp_y_s)
-      
-      p.addUserDebugLine([zmp_x_n,zmp_y_n,0.0], [zmp_x_n,zmp_y_n,0.1], lineColorRGB=[1, 0, 0], lifeTime = 1, lineWidth = 3)
-      zmp_x = zmp_x_n
-      zmp_y = zmp_y_n 
+      zmp_x = base_pos[0] + np.mean(zmp_x_s)
+      zmp_y = base_pos[1] + np.mean(zmp_y_s)
+      if n < round(0.6 *  Params['walking_period'] / Params['dt']):
+        p.addUserDebugLine([zmp_x,zmp_y,0.0], [zmp_x,zmp_y,0.1], lineColorRGB=[1, 0, 0], lifeTime = 1, lineWidth = 3)
+      else:
+        p.addUserDebugLine([zmp_x,zmp_y,0.0], [zmp_x,zmp_y,0.1], lineColorRGB=[0, 1, 0], lifeTime = 1, lineWidth = 3)
       if n == 0:
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.3 * 0 + 0.2, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.12, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.3 * 0 + 0.2, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.12, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.3 * 0 + 0.2, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.12, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = 0
-      joint_angles,n = walk.getNextPos()
+      joint_angles,n = walk.getNextPos(zmp_x,zmp_y,-0.04,-0.02)
       j = 0
     
     for id in range(p.getNumJoints(RobotId)):
@@ -106,11 +106,11 @@ if __name__ == '__main__':
       if qIndex > -1:
         if 'leg' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'):   # R_leg_1 to L_leg_6: 15-26
           if '1' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'):   # hip   MX106
-            p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 6) 
+            p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 8) 
           elif '6' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'): # ankle MX106
-            p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 6)
+            p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 8)
           else: # 64
-            p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 4)
+            p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 6)
         else:
           p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, 0, force=100)
           

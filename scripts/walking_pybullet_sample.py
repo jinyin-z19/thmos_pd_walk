@@ -9,8 +9,9 @@ from random import random
 from time import sleep
 import time
 
+      
 if __name__ == '__main__':
-  TIME_STEP = 0.001
+  TIME_STEP = 0.0001
   physicsClient = p.connect(p.GUI)
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
   p.setGravity(0, 0, -9.8)
@@ -69,35 +70,33 @@ if __name__ == '__main__':
   n = 0
   k = 0 
   nk = 0
-  #rold = p.getLinkState(RobotId, index['r_sole'])[0]
-  #rsold = p.getLinkState(RobotId, index['r_sole'])[0]
-  #lold = p.getLinkState(RobotId, index['l_sole'])[0]
-  #lsold = p.getLinkState(RobotId, index['l_sole'])[0]
+  zmp_x_s = 100 * [0]
+  zmp_y_s = 100 * [0]
+  zmp_x = 0
+  zmp_y = 0
+  acc = [0,0]
+  base_pos = [0,0]
   while p.isConnected():
+    zmp_x_s[j] =  - Params['com_height'] / 9.8 * acc[0]
+    zmp_y_s[j] =  - Params['com_height'] / 9.8 * acc[1]
     j += 1
-    if j >= 10:
-      #r_sole_pos = p.getLinkState(RobotId, index['r_sole'])[0]
-      #l_sole_pos = p.getLinkState(RobotId, index['l_sole'])[0]
-      #print(np.array(r_sole_pos)  - np.array(l_sole_pos))
-      #p.addUserDebugLine( lold, l_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
-      #p.addUserDebugLine( rold, r_sole_pos, lineColorRGB=[1, 0, 0], lifeTime = 10, lineWidth = 3)
-      #rold = p.getLinkState(RobotId, index['r_sole'])[0]
-      #lold = p.getLinkState(RobotId, index['l_sole'])[0] 
-   
+    
+    if j >= 100:
+      zmp_x_n = base_pos[0] + np.mean(zmp_x_s)
+      zmp_y_n = base_pos[1] + np.mean(zmp_y_s)
+      
+      p.addUserDebugLine([zmp_x_n,zmp_y_n,0.0], [zmp_x_n,zmp_y_n,0.1], lineColorRGB=[1, 0, 0], lifeTime = 1, lineWidth = 3)
+      zmp_x = zmp_x_n
+      zmp_y = zmp_y_n 
       if n == 0:
-        #print(np.linalg.norm(np.array(rold)  - np.array(lold) - (np.array(rsold) - np.array(lsold)) * 0))
-        #print(np.array(rold)  - np.array(lold))
-        #print(p.getEulerFromQuaternion(p.getLinkState(RobotId, 24)[1])) 
-        #lsold = p.getLinkState(RobotId, 24)[0]
-        #rsold = p.getLinkState(RobotId, 17)[0]
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.2])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.3 * 0 + 0.2, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.2])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.3 * 0 + 0.2, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.3, (random()-0.5)*0.3, (random()-0.5)*0.2])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.3 * 0 + 0.2, (random()-0.5)*0.2 * 0])
           nk = 0
       joint_angles,n = walk.getNextPos()
       j = 0
@@ -106,13 +105,19 @@ if __name__ == '__main__':
       qIndex = p.getJointInfo(RobotId, id)[3]
       if qIndex > -1:
         if 'leg' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'):   # R_leg_1 to L_leg_6: 15-26
-          if '1' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'):   # hip   106
+          if '1' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'):   # hip   MX106
             p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 6) 
-          elif '6' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'): # ankle 106
+          elif '6' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'): # ankle MX106
             p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 6)
           else: # 64
             p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force = 4)
         else:
           p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, 0, force=100)
+          
+    # caculate sensor
+    v_old,_ = p.getBaseVelocity(RobotId)
     p.stepSimulation()
+    v_new,_ = p.getBaseVelocity(RobotId)
+    base_pos,_ = p.getBasePositionAndOrientation(RobotId)
+    acc = (np.array(v_new) - np.array(v_old)) / TIME_STEP
 

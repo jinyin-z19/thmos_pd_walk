@@ -155,8 +155,8 @@ class walking():
     ro = self.right_off - np.block([[self.body_x, self.body_y, self.body_th]])
 
     # add com offset
-    left_foot  = [lo[0,0] + self.com_x_offset , lo[0,1] + self.com_y_offset + self.ex_foot_width, self.left_up -  self.trunk_height, 0.0, 0.0, lo[0,2]]
-    right_foot = [ro[0,0] + self.com_x_offset , ro[0,1] + self.com_y_offset - self.ex_foot_width, self.right_up - self.trunk_height, 0.0, 0.0, ro[0,2]]
+    left_foot  = [lo[0,0] + self.com_x_offset + self.k_x_offset * self.now_vel[0], lo[0,1] + self.com_y_offset + self.ex_foot_width + self.k_y_offset * self.now_vel[1], self.left_up -  self.trunk_height, 0.0, 0.0, lo[0,2]]
+    right_foot = [ro[0,0] + self.com_x_offset + self.k_x_offset * self.now_vel[0], ro[0,1] + self.com_y_offset - self.ex_foot_width + self.k_y_offset * self.now_vel[1], self.right_up - self.trunk_height, 0.0, 0.0, ro[0,2]]
 
     # ik caculate
     l_joint_angles = self.kinematic.LegIKMove('left',left_foot)

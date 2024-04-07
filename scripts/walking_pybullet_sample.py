@@ -106,6 +106,8 @@ if __name__ == '__main__':
       qIndex = p.getJointInfo(RobotId, id)[3]
       if qIndex > -1:
         if 'leg' in p.getJointInfo(RobotId, id)[1].decode('UTF-8'):
-          p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force=6.5) # R_leg_1 to L_leg_6: 15-26
+          p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, joint_angles[qIndex-15], force=6) # R_leg_1 to L_leg_6: 15-26
+        else:
+          p.setJointMotorControl2(RobotId, id, p.POSITION_CONTROL, 0, force=100)
     p.stepSimulation()
 

@@ -6,12 +6,11 @@ import sys
 sys.path.append('./walking_packet')
 from thmos_walk_engine import *
 from random import random 
-from time import sleep
-import time
+from scipy.spatial.transform import Rotation as R
 
       
 if __name__ == '__main__':
-  TIME_STEP = 0.0001
+  TIME_STEP = 0.0002
   physicsClient = p.connect(p.GUI)
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
   p.setGravity(0, 0, -9.8)
@@ -70,35 +69,42 @@ if __name__ == '__main__':
   n = 0
   k = 0 
   nk = 0
-  zmp_x_s = 100 * [0]
-  zmp_y_s = 100 * [0]
-  zmp_x = 0
-  zmp_y = 0
-  acc = [0,0]
-  base_pos = [0,0]
+  #zmp_x_s = 100 * [0]
+  #zmp_y_s = 100 * [0]
+  #zmp_x = 0
+  #zmp_y = 0
+  #acc = [0,0]
+  #base_pos = [0,0]
   while p.isConnected():
-    zmp_x_s[j] =  - Params['com_height'] / 9.8 * acc[0]
-    zmp_y_s[j] =  - Params['com_height'] / 9.8 * acc[1]
+    #zmp_x_s[j] =  - Params['com_height'] / 9.8 * acc[0]
+    #zmp_y_s[j] =  - Params['com_height'] / 9.8 * acc[1]
     j += 1
     
-    if j >= 100:
-      zmp_x = base_pos[0] + np.mean(zmp_x_s)
-      zmp_y = base_pos[1] + np.mean(zmp_y_s)
-      if n < round(0.6 *  Params['walking_period'] / Params['dt']):
-        p.addUserDebugLine([zmp_x,zmp_y,0.0], [zmp_x,zmp_y,0.1], lineColorRGB=[1, 0, 0], lifeTime = 1, lineWidth = 3)
-      else:
-        p.addUserDebugLine([zmp_x,zmp_y,0.0], [zmp_x,zmp_y,0.1], lineColorRGB=[0, 1, 0], lifeTime = 1, lineWidth = 3)
+    if j >= 50:
+      #zmp_x = base_pos[0] + np.mean(zmp_x_s)
+      #zmp_y = base_pos[1] + np.mean(zmp_y_s)
+      #if n < round(0.6 *  Params['walking_period'] / Params['dt']):
+        #p.addUserDebugLine([zmp_x,zmp_y,0.0], [zmp_x,zmp_y,0.1], lineColorRGB=[1, 0, 0], lifeTime = 1, lineWidth = 3)
+      #else:
+        #p.addUserDebugLine([zmp_x,zmp_y,0.0], [zmp_x,zmp_y,0.1], lineColorRGB=[0, 1, 0], lifeTime = 1, lineWidth = 3)
+
+      # paint ang
+      p.addUserDebugLine([base_pos[0],base_pos[1],base_pos[2]], 
+                         [base_pos[0] +  0.2 * base_vec[0],
+                          base_pos[1] +  0.2 * base_vec[1],
+                          base_pos[2] +  0.2 * base_vec[2]], lineColorRGB=[1, 0, 0], lifeTime = 0.02, lineWidth = 3)
+      #else:
       if n == 0:
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.12, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.05, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.12, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.05, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.12, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.05, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = 0
-      joint_angles,n = walk.getNextPos(zmp_x,zmp_y,-0.04,-0.02)
+      joint_angles,n = walk.getNextPos()
       j = 0
     
     for id in range(p.getNumJoints(RobotId)):
@@ -117,7 +123,12 @@ if __name__ == '__main__':
     # caculate sensor
     v_old,_ = p.getBaseVelocity(RobotId)
     p.stepSimulation()
-    v_new,_ = p.getBaseVelocity(RobotId)
-    base_pos,_ = p.getBasePositionAndOrientation(RobotId)
-    acc = (np.array(v_new) - np.array(v_old)) / TIME_STEP
+    v_new,v_ang = p.getBaseVelocity(RobotId)
+    base_pos,base_qua = p.getBasePositionAndOrientation(RobotId)
+    # caculate body vec
+    r = R.from_quat(base_qua)
+    rot = r.as_matrix()
+    base_vec = rot[0:3,2]
+    # caculate sensor py
+    #acc = (np.array(v_new) - np.array(v_old)) / TIME_STEP
 

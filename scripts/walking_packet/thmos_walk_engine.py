@@ -113,7 +113,7 @@ class walking():
     return 
       
       
-  def getNextPos(self):
+  def getNextPos(self, rfb, pfb):
     '''set each movement'''
     
     # get this pix move
@@ -159,8 +159,8 @@ class walking():
     cy_off = self.com_y_offset + self.k_y_offset * self.now_vel[1]
       
     # caculate foot pos with offset
-    left_foot  = [lo[0,0] + cx_off, lo[0,1] + self.ex_foot_width + cy_off, self.left_up -  self.trunk_height, 0.0, 0.0, lo[0,2]]
-    right_foot = [ro[0,0] + cx_off, ro[0,1] - self.ex_foot_width + cy_off, self.right_up - self.trunk_height, 0.0, 0.0, ro[0,2]]
+    left_foot  = [lo[0,0] + cx_off, lo[0,1] + self.ex_foot_width + cy_off, self.left_up -  self.trunk_height, rfb, pfb, lo[0,2]]
+    right_foot = [ro[0,0] + cx_off, ro[0,1] - self.ex_foot_width + cy_off, self.right_up - self.trunk_height, rfb, pfb, ro[0,2]]
 
 
     # ik caculate

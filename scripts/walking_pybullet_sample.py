@@ -10,7 +10,7 @@ from scipy.spatial.transform import Rotation as R
 
       
 if __name__ == '__main__':
-  TIME_STEP = 0.0002
+  TIME_STEP = 0.001
   physicsClient = p.connect(p.GUI)
   p.setAdditionalSearchPath(pybullet_data.getDataPath())
   p.setGravity(0, 0, -9.8)
@@ -75,12 +75,14 @@ if __name__ == '__main__':
   #zmp_y = 0
   #acc = [0,0]
   #base_pos = [0,0]
+  roll_ang = 0
+  pitch_ang = 0
   while p.isConnected():
     #zmp_x_s[j] =  - Params['com_height'] / 9.8 * acc[0]
     #zmp_y_s[j] =  - Params['com_height'] / 9.8 * acc[1]
     j += 1
     
-    if j >= 50:
+    if j >= 10:
       #zmp_x = base_pos[0] + np.mean(zmp_x_s)
       #zmp_y = base_pos[1] + np.mean(zmp_y_s)
       #if n < round(0.6 *  Params['walking_period'] / Params['dt']):
@@ -93,18 +95,27 @@ if __name__ == '__main__':
                          [base_pos[0] +  0.2 * base_vec[0],
                           base_pos[1] +  0.2 * base_vec[1],
                           base_pos[2] +  0.2 * base_vec[2]], lineColorRGB=[1, 0, 0], lifeTime = 0.02, lineWidth = 3)
+      p.addUserDebugLine([base_pos[0] * 0 ,base_pos[1] * 0,base_pos[2] * 0], 
+                         [base_pos[0] * 0 +  1 * base_vec2[0],
+                          base_pos[1] * 0 +  1 * base_vec2[1],
+                          base_pos[2] * 0 +  1 * base_vec2[2]], lineColorRGB=[0, 0, 1], lifeTime = 0.02, lineWidth = 3)
+      
+      # ankle feed back
+      rfb = 0.24 * roll_ang  + 0.06 * roll_speed
+      pfb = 0.24 * pitch_ang + 0.06 * pitch_speed
+
       #else:
       if n == 0:
         if nk < 8:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.05, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.15, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         elif nk < 12:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.05, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.15, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = nk + 1
         else:
-          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.05, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
+          walk.setGoalVel([(random()-0.5)*0.3 * 0 + 0.15, (random()-0.5)*0.3 * 0 + 0.0, (random()-0.5)*0.2 * 0])
           nk = 0
-      joint_angles,n = walk.getNextPos()
+      joint_angles,n = walk.getNextPos(rfb ,pfb )
       j = 0
     
     for id in range(p.getNumJoints(RobotId)):
@@ -125,10 +136,24 @@ if __name__ == '__main__':
     p.stepSimulation()
     v_new,v_ang = p.getBaseVelocity(RobotId)
     base_pos,base_qua = p.getBasePositionAndOrientation(RobotId)
+
     # caculate body vec
     r = R.from_quat(base_qua)
     rot = r.as_matrix()
-    base_vec = rot[0:3,2]
-    # caculate sensor py
+    base_vec = rot[0:3,2]   
+
+    # caculate sensor rp
+    base_euler = r.as_euler('zyx',degrees=False)
+    base_euler[0] = 0
+    r2 = R.from_euler('zyx',base_euler,degrees=False)
+    rot2 = r2.as_matrix()
+    base_vec2 = rot2[0:3,2]
+
+    roll_speed = (base_euler[2] -  roll_ang) / TIME_STEP
+    pitch_speed = (base_euler[1] -  pitch_ang) / TIME_STEP
+
+    roll_ang = base_euler[2]
+    pitch_ang = base_euler[1]
+
     #acc = (np.array(v_new) - np.array(v_old)) / TIME_STEP
 

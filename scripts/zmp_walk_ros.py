@@ -9,6 +9,8 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
 from thmos_walk_engine import walking
 import numpy as np
+from imu_data import *
+
 class zmp_walker:
     def __init__(self, base_ns = ''):
         # control box ----
@@ -54,9 +56,15 @@ class zmp_walker:
 
         self.walk_goal_subscriber = rospy.Subscriber(base_ns + '/cmd_vel', Twist, self.walk_goal_callback, queue_size=1, tcp_nodelay=True)
         self.joint_goal_publisher = rospy.Publisher(base_ns + '/walking_motor_goals', JointState, queue_size=1)
+        self.imu = imu_Subscriber(0.5)
+
+        self.roll_ang = 0
+        self.pitch_ang = - self.Params['trunk_pitch']
 
     def walk_goal_callback(self, walk_goal_msg):
         self.next_walk_goal = [walk_goal_msg.linear.x, walk_goal_msg.linear.y, walk_goal_msg.angular.z]
+        self.walk_gen.com_y_offset=-self.Params['k_y_offset']*self.next_walk_goal[1]+self.Params['com_y_offset']
+        self.walk_gen.com_x_offset=-self.Params['k_x_offset']*self.next_walk_goal[0]+self.Params['com_x_offset']
         
     def pub_joint_goal(self):
         self.joint_goal_msg.position = self.joint_angles_raw
@@ -64,10 +72,21 @@ class zmp_walker:
     
     def walk(self):
         if self.step_pic_remain == 0:
-            self.walk_gen.setGoalVel(self.next_walk_goal)
-        self.joint_angles_raw, self.step_pic_remain = self.walk_gen.getNextPos()
+            self.walk_gen.setGoalVel(self.next_walk_goal)  
+
+        # imu pd feedback
+        roll_speed = (self.imu.roll -  self.roll_ang) / self.Params['dt']
+        pitch_speed = (self.imu.pitch -  self.pitch_ang) / self.Params['dt']  
+        rfb = 0.096 * self.imu.roll + 0.024 * roll_speed
+        pfb = 0.096 * (self.imu.pitch + self.Params['trunk_pitch'])  + 0.012 * pitch_speed
+        #print("r: ",rfb, " p: ",pfb)
+        self.roll_ang = self.imu.roll
+        self.pitch_ang = self.imu.pitch
+
+        self.joint_angles_raw, self.step_pic_remain = self.walk_gen.getNextPos(rfb * 4,-pfb * 2)
         self.rate.sleep()
         self.pub_joint_goal()
+
         
     
 if __name__ == "__main__":
